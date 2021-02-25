@@ -18,6 +18,8 @@ public class MovementInput : MonoBehaviour {
 	public float desiredRotationSpeed = 0.1f;
 	public Animator anim;
 	public float Speed;
+	public float jumpSpeed = 5.0f;
+	public float gravity = 10.0f;
 	public float allowPlayerRotation = 0.1f;
 	public Camera cam;
 	public CharacterController controller;
@@ -36,11 +38,17 @@ public class MovementInput : MonoBehaviour {
     public float verticalVel;
     private Vector3 moveVector;
 
+	private float idleTimer;
+	private const string IdleDance = "Hip Hop Dance";
+	private const string PushUps = "Pushups";
+	private const string PistolSquats = "Pistol Squats";
+
 	// Use this for initialization
 	void Start () {
 		anim = this.GetComponent<Animator> ();
 		cam = Camera.main;
 		controller = this.GetComponent<CharacterController> ();
+		idleTimer = Time.time;
 	}
 	
 	// Update is called once per frame
@@ -48,18 +56,26 @@ public class MovementInput : MonoBehaviour {
 		InputMagnitude ();
 
         isGrounded = controller.isGrounded;
-        if (isGrounded)
-        {
-            verticalVel -= 0;
+        if (isGrounded && Input.GetButton("Jump")) {
+			resetIdleAnim();
+			anim.SetTrigger("Jump");
+			verticalVel = jumpSpeed;
+		}
+		else if (!isGrounded) {
+            verticalVel -= gravity * Time.deltaTime;
         }
-        else
-        {
-            verticalVel -= 1;
-        }
-        moveVector = new Vector3(0, verticalVel * .2f * Time.deltaTime, 0);
+        moveVector = new Vector3(0, verticalVel * Time.deltaTime, 0);
         controller.Move(moveVector);
 
+		if (Input.GetKeyDown(KeyCode.Q))
+			anim.SetTrigger(PushUps);
+		if (Input.GetKeyDown(KeyCode.E))
+			anim.SetTrigger(PistolSquats);
 
+		if (Time.time - idleTimer >= 20) {
+			anim.SetTrigger(IdleDance);
+			idleTimer = Time.time;
+		}
     }
 
     void PlayerMoveAndRotation() {
@@ -106,6 +122,9 @@ public class MovementInput : MonoBehaviour {
 		InputX = Input.GetAxis ("Horizontal");
 		InputZ = Input.GetAxis ("Vertical");
 
+		if (InputX != 0f || InputZ != 0f)
+			resetIdleAnim();
+
 		//anim.SetFloat ("InputZ", InputZ, VerticalAnimTime, Time.deltaTime * 2f);
 		//anim.SetFloat ("InputX", InputX, HorizontalAnimSmoothTime, Time.deltaTime * 2f);
 
@@ -120,5 +139,10 @@ public class MovementInput : MonoBehaviour {
 		} else if (Speed < allowPlayerRotation) {
 			anim.SetFloat ("Blend", Speed, StopAnimTime, Time.deltaTime);
 		}
+	}
+
+	void resetIdleAnim() {
+		anim.StopPlayback();
+		idleTimer = Time.time;
 	}
 }
