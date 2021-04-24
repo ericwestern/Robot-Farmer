@@ -8,6 +8,9 @@ public class GardenStateData
     public GameObject gardenState;
     public string state;
     public string expectedItem;
+    public string correctMessage;
+    public string incorrectMessage;
+    public string helperMessage;
 
     public void Activate() {
         if (gardenState != null)
