@@ -29,9 +29,9 @@ public class FieldStateData : MonoBehaviour
                     child.transform.localScale += new Vector3(0.001f, 0.001f, 0.001f);
                 else
                     plantsGrowing = false;
-                    flowchart.ExecuteBlock("Game Over Block");
-                    return;
             }
+            if (!plantsGrowing)                
+                flowchart.ExecuteBlock("Game Over Block");
         }
     }
 
